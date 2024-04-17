@@ -1,0 +1,31 @@
+version: 2
+
+sources:
+    - name: mvc_c
+      database: p_c
+      schema: magic
+      tables:
+        - name: mvc_c_2020
+        - name: mvc_c_2021
+        - name: mvc_c_2022
+    - name: mvc_v
+      database: p_c
+      schema: magic
+      tables:
+        - name: mvc_v_2020
+        - name: mvc_v_2021
+        - name: mvc_v_2022
+    - name: mvc_p
+      database: p_c
+      schema: magic
+      tables:
+        - name: mvc_p_2020
+        - name: mvc_p_2021
+        - name: mvc_p_2022
+models:
+    - name: dataset_overview
+    - name: mvc_crashes_per_hour
+    - name: mvc_sum_2020
+    - name: mvc_sum_2021
+    - name: mvc_sum_2022
+    - name: mvc_sum_all

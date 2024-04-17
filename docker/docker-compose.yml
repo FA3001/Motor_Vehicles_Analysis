@@ -1,0 +1,79 @@
+version: '3'
+services:
+#   dbt:
+#     image: entechlog/dbt:latest
+#     build: ./dbt/
+# #    env_file:
+# #      - ./docker/dbt/.env
+#     command: 
+#       - bash 
+#       - -c 
+#       - |
+#         echo "Launching dbt"
+#         #
+#         sleep infinity
+#     restart: unless-stopped
+#     volumes:
+#       - .:/home/src/dbt
+#     ports:
+#       - "8085:8085"
+  pgdatabase:
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DBNAME=${POSTGRES_DBNAME}
+    volumes:
+      - .:/home/src/
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - .:/home/src/
+    ports:
+      - "8080:80"
+    depends_on:
+      - pgdatabase
+
+  metabase-app:
+    image: metabase/metabase
+    ports:
+      - 3001:3000
+    volumes:
+      - .:/home/src/
+    environment:
+      MB_DB_TYPE: ${MB_DB_TYPE}
+      MB_DB_DBNAME: ${MB_DB_DBNAME}
+      MB_DB_PORT: ${MB_DB_PORT}
+      MB_DB_USER: ${MB_DB_USER}
+      MB_DB_PASS: ${MB_DB_PASS}
+      MB_DB_HOST: ${MB_DB_HOST}
+    depends_on:
+      - pgdatabase
+
+  magic:
+    image: mageai/mageai:latest
+    command: mage start ${PROJECT_NAME}
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      USER_CODE_PATH: /home/src/${PROJECT_NAME}
+      POSTGRES_DBNAME: ${POSTGRES_DBNAME}
+      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    ports:
+      - 6789:6789
+    volumes:
+      - .:/home/src/
+    restart: on-failure:5
+    depends_on:
+      - pgdatabase
